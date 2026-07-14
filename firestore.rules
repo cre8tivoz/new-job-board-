@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: passports
+    // Document ID: userId (Firebase Auth UID)
+    // Fields:
+    //   - uid: string (required) - The owner's UID
+    //   - name: string (required)
+    //   - title: string (required)
+    //   - location: string
+    //   - experience: string
+    //   - bio: string
+    //   - avatarUrl: string
+    //   - projects: list of maps
+    //   - resume: map { name: string, url: string }
+    //   - updatedAt: timestamp
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidPassport(data) {
+      return data.keys().hasAll(['uid', 'name', 'title']) &&
+             data.uid is string &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 100 &&
+             (!('location' in data) || (data.location is string && data.location.size() < 100)) &&
+             (!('experience' in data) || (data.experience is string && data.experience.size() < 100)) &&
+             (!('bio' in data) || (data.bio is string && data.bio.size() < 2000)) &&
+             (!('avatarUrl' in data) || (data.avatarUrl is string && data.avatarUrl.size() < 1000)) &&
+             (!('projects' in data) || (data.projects is list && data.projects.size() <= 10)) &&
+             (!('resume' in data) || (data.resume is map || data.resume == null));
+    }
+
+    match /passports/{userId} {
+      allow read: if true; // Passports are public
+      allow create: if isOwner(userId) && isValidPassport(request.resource.data) && request.resource.data.uid == request.auth.uid;
+      allow update: if isOwner(userId) && isValidPassport(request.resource.data) && request.resource.data.uid == resource.data.uid;
+      allow delete: if isOwner(userId);
+    }
+
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
