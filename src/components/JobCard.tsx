@@ -11,6 +11,7 @@ interface JobCardProps {
   onSave?: (jobId: string) => void;
   isSaved?: boolean;
   onClick?: () => void;
+  index?: number;
 }
 
 export function JobCardSkeleton({ theme }: { theme: Theme; key?: React.Key }) {
@@ -83,7 +84,7 @@ export function JobCardSkeleton({ theme }: { theme: Theme; key?: React.Key }) {
   );
 }
 
-export function JobCard({ job, theme, onSave, isSaved, onClick }: JobCardProps) {
+export function JobCard({ job, theme, onSave, isSaved, onClick, index = 0 }: JobCardProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const neoAccents = ['bg-[#00FFFF]', 'bg-[#FF00FF]', 'bg-[#CCFF00]', 'bg-[#FF3300]'];
   const accentClass = neoAccents[job.id.charCodeAt(0) % neoAccents.length];
@@ -91,9 +92,16 @@ export function JobCard({ job, theme, onSave, isSaved, onClick }: JobCardProps) 
   return (
     <motion.div
       onClick={onClick}
-      whileHover={{ y: -4, scale: 1.01 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 260, 
+        damping: 20, 
+        delay: Math.min(index * 0.04, 0.3) 
+      }}
+      whileHover={{ y: -4, scale: 1.01, transition: { type: "spring", stiffness: 400, damping: 17 } }}
+      whileTap={{ scale: 0.98, transition: { type: "spring", stiffness: 400, damping: 17 } }}
       className={cn(
         "relative transition-all duration-300 overflow-hidden cursor-pointer",
         theme === 'neo' && "bg-white border-4 border-black p-3 sm:p-6 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]",

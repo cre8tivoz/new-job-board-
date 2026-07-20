@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Application, ApplicationStatus, Job, Theme } from '../types';
 import { cn } from '../lib/utils';
-import { Trash2, GripVertical, FileText } from 'lucide-react';
+import { Trash2, GripVertical, FileText, TrendingUp, Sparkles, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface KanbanBoardProps {
@@ -32,6 +32,13 @@ export function KanbanBoard({
   onReorder,
 }: KanbanBoardProps) {
   const isNeo = theme === 'neo';
+  const totalCount = applications.length;
+  const appliedCount = applications.filter(a => a.status === 'applied').length;
+  const interviewingCount = applications.filter(a => a.status === 'interviewing').length;
+  const offerCount = applications.filter(a => a.status === 'offer').length;
+  const progressedCount = appliedCount + interviewingCount + offerCount;
+  const percentage = totalCount > 0 ? Math.round((progressedCount / totalCount) * 100) : 0;
+
   const ITEMS_PER_PAGE = 10;
   const [draggedAppId, setDraggedAppId] = useState<string | null>(null);
   const [dragOverColumnId, setDragOverColumnId] = useState<ApplicationStatus | null>(null);
@@ -100,8 +107,145 @@ export function KanbanBoard({
   };
 
   return (
-    <div className="flex gap-6 overflow-x-auto pb-8 snap-x min-h-[600px]">
-      {COLUMNS.map((column) => {
+    <div className="flex flex-col gap-6 w-full">
+      {/* Progress Indicator Card */}
+      {theme === 'neo' && (
+        <div className="border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] font-mono">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-black" />
+                <h3 className="font-bold text-lg uppercase tracking-wider text-black">
+                  Board Momentum
+                </h3>
+              </div>
+              <p className="text-xs text-gray-500 uppercase mt-1 font-semibold">
+                {progressedCount} of {totalCount} applications in progress
+              </p>
+            </div>
+            <div className="text-3xl font-black text-black bg-[#00FFFF] border-2 border-black px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              {percentage}%
+            </div>
+          </div>
+          
+          <div className="h-6 bg-gray-100 border-4 border-black relative overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${percentage}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="h-full bg-[#00FFFF] border-r-4 border-black"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-4 mt-4 text-xs font-bold uppercase text-gray-600">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-blue-200 border border-black inline-block" />
+              <span>Applied: {appliedCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-yellow-200 border border-black inline-block" />
+              <span>Interviewing: {interviewingCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-green-200 border border-black inline-block" />
+              <span>Offered: {offerCount}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {theme === 'cottagecore' && (
+        <div className="bg-[#fdfbf7] border border-[#d2c5b3] rounded-2xl p-6 shadow-sm font-serif text-[#2d4a22]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#2d4a22]" />
+                <h3 className="font-display-cottage text-2xl font-bold italic text-[#2d4a22]">
+                  Our Nurturing Progress
+                </h3>
+              </div>
+              <p className="text-sm text-[#c86b5e] font-serif italic mt-1">
+                {progressedCount} of {totalCount} lovely opportunities are taking root
+              </p>
+            </div>
+            <div className="text-2xl font-bold font-display-cottage text-[#2d4a22] bg-white/40 px-4 py-1.5 rounded-full border border-[#d2c5b3]">
+              {percentage}%
+            </div>
+          </div>
+          
+          <div className="h-3.5 bg-[#e8dfc8]/40 rounded-full overflow-hidden border border-[#d2c5b3]/30">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${percentage}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="h-full bg-[#2d4a22] rounded-full"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-6 mt-4 text-xs italic text-[#2d4a22]">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-blue-300 rounded-full" />
+              <span>Applied: {appliedCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-yellow-300 rounded-full" />
+              <span>Interviewing: {interviewingCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-green-300 rounded-full" />
+              <span>Offered: {offerCount}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {theme === 'lame' && (
+        <div className="bg-white border border-[#D9E2EC] rounded-xl p-6 shadow-sm font-sans text-[#102A43]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#102A43]" />
+                <h3 className="font-display-lame font-bold text-lg text-[#102A43]">
+                  Application Pipeline Momentum
+                </h3>
+              </div>
+              <p className="text-sm text-[#486581] font-medium mt-1">
+                You have successfully progressed {progressedCount} of your {totalCount} total job applications
+              </p>
+            </div>
+            <div className="text-2xl font-bold font-display-lame text-[#102A43] bg-[#F0F4F8] px-4 py-1.5 rounded-lg border border-[#D9E2EC]">
+              {percentage}%
+            </div>
+          </div>
+          
+          <div className="h-3 bg-[#F0F4F8] rounded-full overflow-hidden border border-[#D9E2EC]/30">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${percentage}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="h-full bg-gradient-to-r from-[#243B53] to-[#00FFFF] rounded-full"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-6 mt-4 text-xs font-semibold text-[#486581]">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-blue-500 rounded" />
+              <span>Applied: {appliedCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-yellow-500 rounded" />
+              <span>Interviewing: {interviewingCount}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 bg-green-500 rounded" />
+              <span>Offered: {offerCount}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-6 overflow-x-auto pb-8 snap-x min-h-[600px]">
+        {COLUMNS.map((column) => {
         const columnApps = applications.filter((a) => a.status === column.id);
         const totalPages = Math.ceil(columnApps.length / ITEMS_PER_PAGE);
         const currentPage = columnPages[column.id];
@@ -345,6 +489,7 @@ export function KanbanBoard({
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

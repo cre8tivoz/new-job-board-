@@ -457,7 +457,7 @@ export function BrowseJobs({ jobs, theme, onSaveJob, savedJobIds, isLoading, err
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {currentJobs.map(job => (
+            {currentJobs.map((job, index) => (
               <JobCard
                 key={job.id}
                 job={job}
@@ -465,6 +465,7 @@ export function BrowseJobs({ jobs, theme, onSaveJob, savedJobIds, isLoading, err
                 onSave={onSaveJob}
                 isSaved={savedJobIds.includes(job.id)}
                 onClick={() => navigate('/jobs/' + job.id)}
+                index={index}
               />
             ))}
           </div>
