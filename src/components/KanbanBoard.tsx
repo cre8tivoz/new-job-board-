@@ -3,6 +3,7 @@ import { Application, ApplicationStatus, Job, Theme } from '../types';
 import { cn } from '../lib/utils';
 import { Trash2, GripVertical, FileText, TrendingUp, Sparkles, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 
 interface KanbanBoardProps {
   applications: Application[];
@@ -38,6 +39,33 @@ export function KanbanBoard({
   const offerCount = applications.filter(a => a.status === 'offer').length;
   const progressedCount = appliedCount + interviewingCount + offerCount;
   const percentage = totalCount > 0 ? Math.round((progressedCount / totalCount) * 100) : 0;
+
+  const watchlistCount = applications.filter(a => a.status === 'watchlist').length;
+  const archivedCount = applications.filter(a => a.status === 'archived').length;
+
+  const chartDataNeo = totalCount > 0 ? [
+    { name: 'Watchlist', value: watchlistCount, color: '#FF00FF' },
+    { name: 'Applied', value: appliedCount, color: '#00FFFF' },
+    { name: 'Interviewing', value: interviewingCount, color: '#FFFF00' },
+    { name: 'Offered', value: offerCount, color: '#00FF66' },
+    { name: 'Archived', value: archivedCount, color: '#A0AEC0' }
+  ].filter(d => d.value > 0) : [{ name: 'No Applications', value: 1, color: '#E2E8F0' }];
+
+  const chartDataCottage = totalCount > 0 ? [
+    { name: 'Watchlist', value: watchlistCount, color: '#d2c5b3' },
+    { name: 'Applied', value: appliedCount, color: '#8ca0ba' },
+    { name: 'Interviewing', value: interviewingCount, color: '#e5c158' },
+    { name: 'Offered', value: offerCount, color: '#5a8251' },
+    { name: 'Archived', value: archivedCount, color: '#c86b5e' }
+  ].filter(d => d.value > 0) : [{ name: 'No Applications', value: 1, color: '#E8DFC8' }];
+
+  const chartDataLame = totalCount > 0 ? [
+    { name: 'Watchlist', value: watchlistCount, color: '#627D98' },
+    { name: 'Applied', value: appliedCount, color: '#1982FC' },
+    { name: 'Interviewing', value: interviewingCount, color: '#F5A623' },
+    { name: 'Offered', value: offerCount, color: '#20C997' },
+    { name: 'Archived', value: archivedCount, color: '#BAC7D5' }
+  ].filter(d => d.value > 0) : [{ name: 'No Applications', value: 1, color: '#E4E7EB' }];
 
   const ITEMS_PER_PAGE = 10;
   const [draggedAppId, setDraggedAppId] = useState<string | null>(null);
@@ -111,44 +139,98 @@ export function KanbanBoard({
       {/* Progress Indicator Card */}
       {theme === 'neo' && (
         <div className="border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] font-mono">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-black" />
-                <h3 className="font-bold text-lg uppercase tracking-wider text-black">
-                  Board Momentum
-                </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+            <div className="md:col-span-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-black" />
+                    <h3 className="font-bold text-lg uppercase tracking-wider text-black">
+                      Board Momentum
+                    </h3>
+                  </div>
+                  <p className="text-xs text-gray-500 uppercase mt-1 font-semibold">
+                    {progressedCount} of {totalCount} applications in progress
+                  </p>
+                </div>
+                <div className="text-3xl font-black text-black bg-[#00FFFF] border-2 border-black px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  {percentage}%
+                </div>
               </div>
-              <p className="text-xs text-gray-500 uppercase mt-1 font-semibold">
-                {progressedCount} of {totalCount} applications in progress
-              </p>
-            </div>
-            <div className="text-3xl font-black text-black bg-[#00FFFF] border-2 border-black px-3 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              {percentage}%
-            </div>
-          </div>
-          
-          <div className="h-6 bg-gray-100 border-4 border-black relative overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${percentage}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="h-full bg-[#00FFFF] border-r-4 border-black"
-            />
-          </div>
+              
+              <div className="h-6 bg-gray-100 border-4 border-black relative overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percentage}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="h-full bg-[#00FFFF] border-r-4 border-black"
+                />
+              </div>
 
-          <div className="flex flex-wrap gap-4 mt-4 text-xs font-bold uppercase text-gray-600">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-blue-200 border border-black inline-block" />
-              <span>Applied: {appliedCount}</span>
+              <div className="flex flex-wrap gap-4 mt-4 text-xs font-bold uppercase text-gray-600">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-pink-500 border border-black inline-block" />
+                  <span>Watchlist: {watchlistCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#00FFFF] border border-black inline-block" />
+                  <span>Applied: {appliedCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-yellow-400 border border-black inline-block" />
+                  <span>Interviewing: {interviewingCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-green-400 border border-black inline-block" />
+                  <span>Offered: {offerCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-gray-400 border border-black inline-block" />
+                  <span>Archived: {archivedCount}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-yellow-200 border border-black inline-block" />
-              <span>Interviewing: {interviewingCount}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-green-200 border border-black inline-block" />
-              <span>Offered: {offerCount}</span>
+
+            {/* Donut Chart Container */}
+            <div className="md:col-span-1 flex items-center justify-center h-[140px] w-full relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartDataNeo}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={36}
+                    outerRadius={54}
+                    paddingAngle={totalCount > 0 ? 3 : 0}
+                    dataKey="value"
+                  >
+                    {chartDataNeo.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color} 
+                        stroke="#000000" 
+                        strokeWidth={totalCount > 0 ? 2 : 1} 
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#ffffff', 
+                      border: '3px solid #000000', 
+                      borderRadius: '0px',
+                      fontFamily: 'monospace',
+                      fontWeight: 'bold',
+                      boxShadow: '4px 4px 0px 0px rgba(0,0,0,1)',
+                      fontSize: '12px'
+                    }}
+                    itemStyle={{ color: '#000000' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-xl font-black text-black leading-none">{totalCount}</span>
+                <span className="text-[8px] font-bold text-black uppercase tracking-wider leading-none mt-0.5">Total</span>
+              </div>
             </div>
           </div>
         </div>
@@ -156,44 +238,97 @@ export function KanbanBoard({
 
       {theme === 'cottagecore' && (
         <div className="bg-[#fdfbf7] border border-[#d2c5b3] rounded-2xl p-6 shadow-sm font-serif text-[#2d4a22]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#2d4a22]" />
-                <h3 className="font-display-cottage text-2xl font-bold italic text-[#2d4a22]">
-                  Our Nurturing Progress
-                </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+            <div className="md:col-span-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-[#2d4a22]" />
+                    <h3 className="font-display-cottage text-2xl font-bold italic text-[#2d4a22]">
+                      Our Nurturing Progress
+                    </h3>
+                  </div>
+                  <p className="text-sm text-[#c86b5e] font-serif italic mt-1">
+                    {progressedCount} of {totalCount} lovely opportunities are taking root
+                  </p>
+                </div>
+                <div className="text-2xl font-bold font-display-cottage text-[#2d4a22] bg-white/40 px-4 py-1.5 rounded-full border border-[#d2c5b3]">
+                  {percentage}%
+                </div>
               </div>
-              <p className="text-sm text-[#c86b5e] font-serif italic mt-1">
-                {progressedCount} of {totalCount} lovely opportunities are taking root
-              </p>
-            </div>
-            <div className="text-2xl font-bold font-display-cottage text-[#2d4a22] bg-white/40 px-4 py-1.5 rounded-full border border-[#d2c5b3]">
-              {percentage}%
-            </div>
-          </div>
-          
-          <div className="h-3.5 bg-[#e8dfc8]/40 rounded-full overflow-hidden border border-[#d2c5b3]/30">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${percentage}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="h-full bg-[#2d4a22] rounded-full"
-            />
-          </div>
+              
+              <div className="h-3.5 bg-[#e8dfc8]/40 rounded-full overflow-hidden border border-[#d2c5b3]/30">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percentage}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="h-full bg-[#2d4a22] rounded-full"
+                />
+              </div>
 
-          <div className="flex flex-wrap gap-6 mt-4 text-xs italic text-[#2d4a22]">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 bg-blue-300 rounded-full" />
-              <span>Applied: {appliedCount}</span>
+              <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-xs italic text-[#2d4a22]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#d2c5b3] rounded-full" />
+                  <span>Watchlist: {watchlistCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#8ca0ba] rounded-full" />
+                  <span>Applied: {appliedCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#e5c158] rounded-full" />
+                  <span>Interviewing: {interviewingCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#5a8251] rounded-full" />
+                  <span>Offered: {offerCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 bg-[#c86b5e] rounded-full" />
+                  <span>Archived: {archivedCount}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 bg-yellow-300 rounded-full" />
-              <span>Interviewing: {interviewingCount}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 bg-green-300 rounded-full" />
-              <span>Offered: {offerCount}</span>
+
+            {/* Donut Chart Container */}
+            <div className="md:col-span-1 flex items-center justify-center h-[140px] w-full relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartDataCottage}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={36}
+                    outerRadius={54}
+                    paddingAngle={totalCount > 0 ? 3 : 0}
+                    dataKey="value"
+                  >
+                    {chartDataCottage.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color} 
+                        stroke="#fdfbf7" 
+                        strokeWidth={totalCount > 0 ? 2 : 1} 
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#fdfbf7', 
+                      border: '1px solid #d2c5b3', 
+                      borderRadius: '12px',
+                      fontFamily: 'serif',
+                      color: '#2d4a22',
+                      fontSize: '12px'
+                    }}
+                    itemStyle={{ color: '#2d4a22' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-xl font-bold font-display-cottage text-[#2d4a22] leading-none">{totalCount}</span>
+                <span className="text-[9px] font-serif italic text-[#c86b5e] leading-none mt-0.5">total</span>
+              </div>
             </div>
           </div>
         </div>
@@ -201,44 +336,97 @@ export function KanbanBoard({
 
       {theme === 'lame' && (
         <div className="bg-white border border-[#D9E2EC] rounded-xl p-6 shadow-sm font-sans text-[#102A43]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#102A43]" />
-                <h3 className="font-display-lame font-bold text-lg text-[#102A43]">
-                  Application Pipeline Momentum
-                </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+            <div className="md:col-span-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-[#102A43]" />
+                    <h3 className="font-display-lame font-bold text-lg text-[#102A43]">
+                      Application Pipeline Momentum
+                    </h3>
+                  </div>
+                  <p className="text-sm text-[#486581] font-medium mt-1">
+                    You have successfully progressed {progressedCount} of your {totalCount} total job applications
+                  </p>
+                </div>
+                <div className="text-2xl font-bold font-display-lame text-[#102A43] bg-[#F0F4F8] px-4 py-1.5 rounded-lg border border-[#D9E2EC]">
+                  {percentage}%
+                </div>
               </div>
-              <p className="text-sm text-[#486581] font-medium mt-1">
-                You have successfully progressed {progressedCount} of your {totalCount} total job applications
-              </p>
-            </div>
-            <div className="text-2xl font-bold font-display-lame text-[#102A43] bg-[#F0F4F8] px-4 py-1.5 rounded-lg border border-[#D9E2EC]">
-              {percentage}%
-            </div>
-          </div>
-          
-          <div className="h-3 bg-[#F0F4F8] rounded-full overflow-hidden border border-[#D9E2EC]/30">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${percentage}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="h-full bg-gradient-to-r from-[#243B53] to-[#00FFFF] rounded-full"
-            />
-          </div>
+              
+              <div className="h-3 bg-[#F0F4F8] rounded-full overflow-hidden border border-[#D9E2EC]/30">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percentage}%` }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="h-full bg-gradient-to-r from-[#243B53] to-[#00FFFF] rounded-full"
+                />
+              </div>
 
-          <div className="flex flex-wrap gap-6 mt-4 text-xs font-semibold text-[#486581]">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-blue-500 rounded" />
-              <span>Applied: {appliedCount}</span>
+              <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-xs font-semibold text-[#486581]">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#627D98] rounded" />
+                  <span>Watchlist: {watchlistCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#1982FC] rounded" />
+                  <span>Applied: {appliedCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#F5A623] rounded" />
+                  <span>Interviewing: {interviewingCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#20C997] rounded" />
+                  <span>Offered: {offerCount}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 bg-[#BAC7D5] rounded" />
+                  <span>Archived: {archivedCount}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-yellow-500 rounded" />
-              <span>Interviewing: {interviewingCount}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-green-500 rounded" />
-              <span>Offered: {offerCount}</span>
+
+            {/* Donut Chart Container */}
+            <div className="md:col-span-1 flex items-center justify-center h-[140px] w-full relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartDataLame}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={36}
+                    outerRadius={54}
+                    paddingAngle={totalCount > 0 ? 3 : 0}
+                    dataKey="value"
+                  >
+                    {chartDataLame.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color} 
+                        stroke="#ffffff" 
+                        strokeWidth={totalCount > 0 ? 2 : 1} 
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#ffffff', 
+                      border: '1px solid #D9E2EC', 
+                      borderRadius: '8px',
+                      fontFamily: 'sans-serif',
+                      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)',
+                      fontSize: '12px'
+                    }}
+                    itemStyle={{ color: '#102A43' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-xl font-bold font-display-lame text-[#102A43] leading-none">{totalCount}</span>
+                <span className="text-[9px] font-medium text-[#486581] uppercase tracking-wider leading-none mt-0.5">Total</span>
+              </div>
             </div>
           </div>
         </div>
@@ -294,7 +482,7 @@ export function KanbanBoard({
                   const isDragOver = dragOverAppId === app.id;
 
                   return (
-                    <React.Fragment key={app.id}>
+                    <motion.div key={app.id} layout className="w-full flex flex-col">
                       {/* Drop Indicator Before */}
                       <AnimatePresence>
                         {isDragOver && dropPosition === 'before' && (
@@ -442,7 +630,7 @@ export function KanbanBoard({
                           </motion.div>
                         )}
                       </AnimatePresence>
-                    </React.Fragment>
+                    </motion.div>
                   );
                 })}
               </AnimatePresence>
