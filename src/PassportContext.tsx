@@ -3,6 +3,7 @@ import { Theme } from './types';
 import { auth, db, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
+import { isSafePublicUrl, storedPassportSchema } from './lib/passportSchema';
 
 export interface PassportData {
   name: string;
@@ -17,7 +18,7 @@ export interface PassportData {
 
 interface PassportContextType {
   passportData: PassportData;
-  updatePassportData: (data: Partial<PassportData>) => void;
+  updatePassportData: (data: Partial<PassportData>) => Promise<void>;
   user: User | null;
   isAuthReady: boolean;
 }
@@ -61,10 +62,24 @@ export function PassportProvider({ children }: { children: ReactNode }) {
     const docRef = doc(db, 'passports', user.uid);
     const unsubscribe = onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
-        setPassportData(snapshot.data() as PassportData);
+        const parsed = storedPassportSchema.safeParse(snapshot.data());
+        if (parsed.success && parsed.data.uid === user.uid) {
+          setPassportData({
+            name: parsed.data.name,
+            title: parsed.data.title,
+            location: parsed.data.location,
+            experience: parsed.data.experience,
+            bio: parsed.data.bio,
+            avatarUrl: parsed.data.avatarUrl,
+            projects: parsed.data.projects,
+            resume: null,
+          });
+        } else {
+          console.error('Stored passport failed validation.');
+        }
       }
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, `passports/${user.uid}`);
+      handleFirestoreError(error, OperationType.GET, null);
     });
 
     return () => unsubscribe();
@@ -77,13 +92,20 @@ export function PassportProvider({ children }: { children: ReactNode }) {
     if (user) {
       try {
         const docRef = doc(db, 'passports', user.uid);
+        const publicProjects = newData.projects.filter((project) => isSafePublicUrl(project.img));
         await setDoc(docRef, {
-          ...newData,
           uid: user.uid,
+          name: newData.name.trim(),
+          title: newData.title.trim(),
+          location: newData.location.trim(),
+          experience: newData.experience.trim(),
+          bio: newData.bio.trim(),
+          avatarUrl: isSafePublicUrl(newData.avatarUrl) ? newData.avatarUrl : '',
+          projects: publicProjects,
           updatedAt: serverTimestamp()
-        }, { merge: true });
+        });
       } catch (error) {
-        handleFirestoreError(error, OperationType.WRITE, `passports/${user.uid}`);
+        throw handleFirestoreError(error, OperationType.WRITE, null);
       }
     }
   };

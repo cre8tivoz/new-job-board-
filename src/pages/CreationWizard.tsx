@@ -5,7 +5,6 @@ import { cn } from '../lib/utils';
 import { Upload, Eye, Image as ImageIcon, Sparkles, Loader2, X, FileText, AlertCircle } from 'lucide-react';
 import { usePassport } from '../PassportContext';
 import { loginWithGoogle } from '../firebase';
-import { GoogleGenAI, Type } from "@google/genai";
 import { LogIn } from 'lucide-react';
 
 interface CreationWizardProps {
@@ -24,6 +23,7 @@ export function CreationWizard({ theme }: CreationWizardProps) {
   const [resumeError, setResumeError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [highlightedFields, setHighlightedFields] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -193,35 +193,32 @@ export function CreationWizard({ theme }: CreationWizardProps) {
   };
 
   const handleMagicFill = async () => {
-    if (!cvText.trim()) return;
+    if (!user || cvText.trim().length < 50 || cvText.length > 20_000) {
+      setAiError('CV text must contain between 50 and 20,000 characters.');
+      return;
+    }
     
     setIsAnalyzing(true);
+    setAiError(null);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Extract professional details from the following CV text and return them in JSON format. 
-        Fields: name, title, location, experience, bio.
-        CV Text: ${cvText}`,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              name: { type: Type.STRING },
-              title: { type: Type.STRING },
-              location: { type: Type.STRING },
-              experience: { type: Type.STRING },
-              bio: { type: Type.STRING },
-            },
-            required: ["name", "title", "location", "experience", "bio"],
-          },
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/ai/passport-extract', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ cvText: cvText.trim() }),
       });
 
-      const result = JSON.parse(response.text || '{}');
+      const body: unknown = await response.json().catch(() => null);
+      if (!response.ok || !body || typeof body !== 'object') {
+        throw new Error('AI extraction request failed.');
+      }
+
+      const result = body as Record<string, string>;
       updatePassportData(result);
-      setHighlightedFields(Object.keys(result));
+      setHighlightedFields(['name', 'title', 'location', 'experience', 'bio']);
       
       // Clear highlights after 4 seconds
       setTimeout(() => {
@@ -231,7 +228,8 @@ export function CreationWizard({ theme }: CreationWizardProps) {
       setShowAiInput(false);
       setCvText('');
     } catch (error) {
-      console.error('AI Analysis failed:', error);
+      console.error('AI analysis failed.', { errorType: error instanceof Error ? error.name : 'UnknownError' });
+      setAiError('We could not analyse the CV right now. Please try again.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -367,7 +365,11 @@ export function CreationWizard({ theme }: CreationWizardProps) {
               <textarea 
                 rows={5} 
                 value={cvText}
-                onChange={(e) => setCvText(e.target.value)}
+                onChange={(e) => {
+                  setCvText(e.target.value);
+                  setAiError(null);
+                }}
+                maxLength={20_000}
                 placeholder="Paste your CV content..."
                 className={cn(
                   "w-full p-4 outline-none resize-none bg-white/10 text-white",
@@ -376,6 +378,15 @@ export function CreationWizard({ theme }: CreationWizardProps) {
                   theme === 'lame' && "rounded-md border border-[#334E68] font-display-lame"
                 )}
               />
+              <p className="text-xs opacity-75">
+                CV text is sent securely to the server for extraction and is not logged by this application.
+              </p>
+              {aiError && (
+                <p className="text-sm font-bold text-red-400 flex items-center gap-2" role="alert">
+                  <AlertCircle className="w-4 h-4" />
+                  {aiError}
+                </p>
+              )}
               <button 
                 onClick={handleMagicFill}
                 disabled={isAnalyzing || !cvText.trim()}
