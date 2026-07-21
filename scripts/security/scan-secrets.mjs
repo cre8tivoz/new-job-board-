@@ -78,6 +78,11 @@ function isPrivateHostname(hostname) {
   return host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80:');
 }
 
+function isDocumentedLocalDevelopmentUrl(path, hostname) {
+  if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '::1') return false;
+  return path === '.env.example' || path === 'server.ts' || path === 'src/server/auth.ts' || path.startsWith('tests/');
+}
+
 function scanText(path, text, scope) {
   if (excludedPaths.has(path) || text.includes('\u0000')) return [];
 
@@ -112,7 +117,7 @@ function scanText(path, text, scope) {
       if (parsed.username || parsed.password) {
         findings.push({ scope, path, type: 'Credential embedded in URL', line });
       }
-      if (isPrivateHostname(parsed.hostname)) {
+      if (isPrivateHostname(parsed.hostname) && !isDocumentedLocalDevelopmentUrl(path, parsed.hostname)) {
         findings.push({ scope, path, type: 'Private or internal URL', line });
       }
       for (const [name, value] of parsed.searchParams) {

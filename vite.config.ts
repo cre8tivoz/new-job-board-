@@ -5,13 +5,16 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  publicDir: false,
+  build: {
+    outDir: process.env.VERCEL ? 'public' : 'dist',
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),
     },
   },
   server: {
-    // AI Studio may disable file watching while an agent is editing.
     hmr: process.env.DISABLE_HMR !== 'true',
   },
 });

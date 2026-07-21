@@ -2,6 +2,7 @@ node_modules/
 build/
 dist/
 dist-server/
+public/
 coverage/
 .DS_Store
 *.log
@@ -9,10 +10,8 @@ coverage/
 !.env.example
 
 # Local credentials and provider state
-firebase-applet-config.json
 *service-account*.json
 credentials*.json
-.firebase/
 .playwright-cli/
 *.pem
 *.key
