@@ -4,8 +4,8 @@
 
 ### A fairer home for Australian creative and technology jobs
 
-Free permanent candidate Passports. Human-reviewed $30 job listings. No paid
-promotion, no algorithmic ranking and no mucking about.
+Free permanent candidate Passports. $30 job listings with administrator review.
+No paid promotion, no algorithmic ranking and no mucking about.
 
 [![Open Cre8tiv](https://img.shields.io/badge/OPEN_THE_LIVE_APP-Cre8tiv-e8ff36?style=for-the-badge&logo=vercel&logoColor=000000)](https://cre8tivjobs.vercel.app)
 
@@ -19,7 +19,7 @@ promotion, no algorithmic ranking and no mucking about.
 [![Apache 2.0](https://img.shields.io/badge/licence-Apache--2.0-d22128?style=flat-square&logo=apache)](LICENSE)
 
 **[Try the live app](https://cre8tivjobs.vercel.app)** ·
-**[Watch the 20-second employer demo](docs/media/cre8tiv-employer-profile-and-listing-20s.mp4)** ·
+**[Watch the 20-second employer account and listing demo](docs/media/cre8tiv-employer-profile-and-listing-20s.mp4)** ·
 **[See the Build Week changelog](BUILD_WEEK_CHANGELOG.md)**
 
 </div>
@@ -43,27 +43,28 @@ application before expanding the feature set.
 
 | Who | What they can do today |
 | --- | --- |
-| Visitor | Browse human-approved Australian jobs in chronological order and view public candidate Passports. |
+| Visitor | Browse published fictional Australian demo jobs in chronological order and open a public candidate Passport when given its direct URL. |
 | Candidate | Register, create a permanent Passport, apply to a published job once and review their application history. |
-| Employer | Register, create an employer profile, submit a $30 exclusive for review and view applicants for their own published jobs. |
-| Administrator | Review, approve or reject listings, then publish approved work as a separate accountable action. |
+| Employer | Register, submit a $30 exclusive for review and view applicants for their own published jobs. |
+| Administrator | Review, approve or reject listings, then publish approved work as a separate server-enforced action. |
 
-The listing payment hand-off is currently a clearly labelled simulation. No
-card is charged in this demonstration.
+The AUD $30 listing price is fixed in the API and database policy, but payment
+collection is not implemented. No card is charged in this demonstration.
 
 ## The complete Build Week flow
 
 1. A visitor browses published creative and technology jobs.
 2. A candidate registers and creates their public Cre8tiv Passport.
-3. An employer registers, creates a profile and submits a $30 exclusive.
+3. An employer registers and submits a $30 exclusive.
 4. The listing enters `pending_review`; it cannot quietly publish itself.
 5. An administrator approves or rejects it.
-6. Approval and publication remain separate, auditable actions.
+6. Approval and publication remain separate, server-enforced transitions.
 7. A registered candidate with a Passport applies once.
 8. The owning employer reviews the attributable applicant and their Passport.
 
-Every identity, organisation and job in the included demonstration data is
-fictional.
+The seeded candidate, employer and administrator accounts, companies and job
+listings are fictional demonstration records. The seed inserts its published
+jobs directly, so those records do not document a completed human review.
 
 ## Why it fits the judging criteria
 
@@ -82,13 +83,13 @@ and a production deployment in Vercel's Sydney region.
 ### Design
 
 The product uses plain language and clear status states so candidates and small
-employers can understand what happens next. The core screens are responsive,
-keyboard-usable and built with semantic controls, visible focus treatments,
-labelled forms and useful loading, empty and error states.
+employers can understand what happens next. The core screens use responsive
+layouts, semantic controls, visible focus treatments, labelled forms and
+loading, empty and error states.
 
 The current interface is the secure Build Week foundation. The next design
 stage will restore the prototype's personality as a mobile-first, accessible
-three-theme experience: **Neo**, **Cottage Call** and deliberately sensible
+three-theme experience: **Neo Mode**, **Cottage Mode** and deliberately sensible
 **Lame Mode**.
 
 ### Potential impact
@@ -107,15 +108,18 @@ less like ad-tech and a little more like a useful local jobs board.
 
 ## Try it live
 
-The production demonstration is at
-**[https://cre8tivjobs.vercel.app](https://cre8tivjobs.vercel.app)**.
+The production demonstration is live at
+[**cre8tivjobs.vercel.app**](https://cre8tivjobs.vercel.app/).
 
-Judge account details are supplied privately with the competition entry. No
-passwords or privileged credentials are stored in this repository. You can
-still explore the public job board and Passport pages without signing in.
+Judge account credentials were not supplied with the competition submission,
+and no passwords or privileged credentials are stored in this repository. You
+can explore the public job board and the seeded
+[**Maya Thompson Passport**](https://cre8tivjobs.vercel.app/#/passport/maya-thompson)
+without signing in. Creating or editing your own Passport requires a candidate
+account.
 
 For the quickest tour, watch the
-**[20-second employer profile and listing demo](docs/media/cre8tiv-employer-profile-and-listing-20s.mp4)**.
+**[20-second employer account and listing demo](docs/media/cre8tiv-employer-profile-and-listing-20s.mp4)**.
 
 ## Run Cre8tiv locally
 
@@ -193,9 +197,11 @@ Express API on Vercel Functions
               Neon Postgres
 ```
 
-Client code imports only the authentication client and a same-origin API
-helper. Database access, secrets, trusted roles, resource ownership, price and
-lifecycle mutations remain in `src/server/`.
+The browser uses the authentication client and a same-origin API helper rather
+than connecting to the database directly. Runtime database access, secrets,
+trusted roles, resource ownership, price and lifecycle mutations are handled
+server-side; database maintenance scripts also reuse the server database
+client.
 
 Key decisions and their reasoning are recorded in
 [`docs/ARCHITECTURE_DECISIONS.md`](docs/ARCHITECTURE_DECISIONS.md).
@@ -227,10 +233,10 @@ npm run db:seed      # load the opt-in fictional demonstration data
 
 ## Security and Build Week evidence
 
-Security remediation came before new product work. The exposed credential from
-the original prototype was revoked separately, all privileged access moved
-server-side and the repository history was sanitised without retaining the
-credential value in documentation.
+Security remediation came before new product work. The remediation record says
+the exposed credential from the original prototype was revoked separately. All
+privileged access moved server-side, and the repository history was sanitised
+without retaining the credential value in documentation.
 
 - [`SECURITY_REMEDIATION.md`](SECURITY_REMEDIATION.md) explains the findings,
   fixes and verification without reproducing sensitive material.
@@ -239,7 +245,8 @@ credential value in documentation.
 - [`BUILD_WEEK_CHANGELOG.md`](BUILD_WEEK_CHANGELOG.md) provides the dated,
   commit-by-commit Build Week ledger.
 - [Application Security on GitHub Actions](https://github.com/cre8tivoz/cre8tiv-job-board/actions/workflows/security.yml)
-  runs secret scanning, dependency checks, tests and production builds.
+  runs secret scanning, dependency checks, linting, CodeQL and production
+  builds.
 
 Build Week judging should consider work from commit `a25f8cf` onwards. The
 sanitised pre-Build Week baseline is commit `a98b1f3`.
@@ -274,7 +281,7 @@ claimed as GPT-5.6 output.
 
 ## Current limits — clearly labelled
 
-- The $30 payment hand-off is simulated; no production payment is collected.
+- The $30 price is enforced, but payment collection is not implemented.
 - Email verification, password reset delivery and transactional email still
   require a future provider.
 - Google and GitHub sign-in are not yet enabled.
@@ -291,7 +298,7 @@ on:
 
 - a persistent candidate application Kanban board;
 - mobile-first layouts and an accessibility baseline across every flow;
-- the **Neo**, **Cottage Call** and **Lame Mode** themes;
+- the **Neo Mode**, **Cottage Mode** and **Lame Mode** themes;
 - a richer public Passport, FAQ and roadmap experience;
 - realistic fictional jobs across Australian states and territories; and
 - carefully configured Google and GitHub sign-in.
@@ -300,15 +307,22 @@ Those features are direction, not claims about the current submission. Product
 scope stays grounded in free Passports, affordable reviewed exclusives and
 transparent chronological discovery.
 
-## A strong 90-second judging path
+## A credential-free judging path
 
 1. Browse the chronologically ordered jobs while signed out.
-2. Sign in as the candidate and show the permanent public Passport.
-3. Sign in as the employer and submit a complete $30 exclusive.
-4. Show the listing waiting in `pending_review`.
-5. Sign in as the administrator, approve it, then publish it separately.
-6. Apply as the registered candidate and show duplicate prevention.
-7. Return as the employer and view the attributable applicant and Passport.
+2. Open the seeded [public Passport](https://cre8tivjobs.vercel.app/#/passport/maya-thompson)
+   directly without signing in.
+3. Register a candidate account, create a Passport and apply to a published job.
+4. Submit the same application again to see duplicate prevention.
+5. Sign out, register an employer account and submit a complete $30 exclusive.
+6. Open the employer desk and confirm that the listing is waiting in
+   `pending_review`.
+
+Administrator approval, publication and the owning employer's applicant view
+require the role-specific demonstration accounts. Because those credentials
+were not supplied with the competition submission, that part of the shared
+deployment cannot be judged directly. To inspect the complete multi-role flow,
+run the opt-in local seed with a locally chosen `DEMO_PASSWORD`.
 
 ## Licence
 
