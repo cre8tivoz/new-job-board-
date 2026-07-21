@@ -53,7 +53,9 @@ score, recommendation score, or automated applicant rank.
 **Status:** accepted
 
 Keep React/Vite and Express as one same-origin Vercel deployment. Express is
-exported as a Vercel Function, Vite emits CDN assets to `public/` in Vercel, and
-auth uses secure same-origin cookies. Database and auth initialisation remain
-lazy so missing environment variables produce safe runtime errors rather than
-crashing the build.
+exported through `api/index.ts` as a Vercel Function in Sydney, Vite emits CDN
+assets to `dist/`, and `/api/*` is routed to Express before the SPA fallback.
+Auth uses secure same-origin cookies and dynamically trusts the canonical Vercel
+production or preview origin. Database and auth initialisation remain lazy so
+missing environment variables produce safe runtime errors rather than crashing
+the build.

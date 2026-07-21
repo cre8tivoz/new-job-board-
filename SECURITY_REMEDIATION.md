@@ -144,44 +144,41 @@ history cleanup.
 
 ## Deployment requirements
 
-- Keep Firebase and pay-as-you-go integrations unconfigured during the current
-  local-only phase; their routes fail closed without credentials.
-- Remove or redesign the remaining integration scaffolding when the replacement
-  database architecture is selected.
-- If any future server integration is approved, store its credentials in the
-  deployment platform's encrypted environment settings, never repository files.
-- Enable GitHub secret scanning and push protection in repository settings.
-- Keep the AI endpoint disabled until authentication configuration is present;
-  it fails closed when configuration is absent.
+- Firebase, Gemini, Google identity, and the former integration scaffolding have
+  been removed rather than reconfigured.
+- Vercel Marketplace Neon and Better Auth are the approved replacement trust
+  boundary. Database and authentication credentials exist only in Vercel's
+  encrypted server environment.
+- Production and Preview use separate auth signing secrets. No privileged value
+  uses `VITE_*`, `NEXT_PUBLIC_*`, `REACT_APP_*`, or another public prefix.
+- GitHub secret scanning, push protection, dependency review, CodeQL, the
+  repository redacting scanner, and build verification remain required gates.
+- Migrations are applied explicitly; demonstration seeding is opt-in and requires
+  an environment-supplied, replaceable password.
 
 ## Verification commands
 
 ```bash
 npm ci
-npm run lint
-npm run security:secrets
-npm run security:audit
-npm run build
-NODE_ENV=production npm start
-```
-
-The history-only scanner verifies every reachable rewritten blob:
-
-```bash
+npm run check
 npm run security:secrets:history
+npm run security:audit
 ```
 
 ## Verification result
 
-- TypeScript type-check: passed.
+- Fresh public clone using `.env.example`: passed.
+- ESLint and TypeScript type-check: passed.
+- Ten permission, lifecycle, ownership, and safe-error integration tests: passed.
+- Fresh database migration verification: passed.
 - Working-tree secret scan: passed with secret values suppressed by design.
 - History scan: passed after rewriting and removing legacy local refs.
 - npm advisory audit: zero known vulnerabilities.
 - Production client and server builds: passed.
-- Production HTTP smoke test: root and health routes returned success; the
-  unconfigured paid jobs integration failed closed; cross-origin mutation was
-  rejected; unauthenticated mutation was rejected; expected Helmet headers
-  were present.
-- Browser smoke test: the landing page rendered with non-secret test Firebase
-  identifiers. The only console error was the expected fail-closed response
-  from the deliberately unconfigured live-jobs integration.
+- Built browser bundle comparison: no server-only environment value or known
+  credential pattern was present.
+- GitHub: latest security workflow passed and open secret-scanning alert count
+  was zero.
+- Production: Vercel and Marketplace Neon are live at the documented canonical
+  URL; public, candidate, employer, and administrator paths were verified in a
+  real browser with zero console errors after the live-found cleanup fix.

@@ -16,7 +16,7 @@ design.
 - [x] Server-side Zod validation and safe errors.
 - [x] Repeatable Australian demonstration seed.
 - [x] Focused adversarial integration tests and secret/dependency checks.
-- [ ] Provision and verify the production Vercel Marketplace Neon environment.
+- [x] Provision and verify the production Vercel Marketplace Neon environment.
 
 ### 2. Design
 
@@ -65,6 +65,24 @@ design.
   production build, and Vercel-mode build.
 - Verified the responsive public shell in a real browser; with no database
   configured it rendered the intended safe setup error without exposing details.
+
+### Production deployment and verification
+
+- Created the `cre8tivjobs` Vercel project and connected the GitHub repository.
+- Provisioned Vercel Marketplace Neon in Sydney and applied committed migrations.
+- Loaded the fictional, replaceable demonstration seed without exposing its password.
+- Added separate encrypted Better Auth signing secrets for Production, Preview,
+  and Development; all database values remain encrypted server-side variables.
+- Deployed Vite assets from `dist/` and the Express API as one Sydney function.
+- Verified the public, candidate, employer, and administrator paths in a real
+  browser against the production database.
+- Repaired a dashboard effect cleanup defect found during live role sign-out and
+  reverified the deployed fix with zero browser console errors.
+- Verified a clean public clone using only `.env.example`, `npm ci`, and the full
+  `npm run check` suite.
+- Confirmed zero open GitHub secret-scanning alerts, successful GitHub security
+  checks, a clean rewritten history scan, zero npm vulnerabilities, and no
+  server-only value or credential pattern in the built browser bundle.
 
 ## Codex and GPT-5.6 contribution
 

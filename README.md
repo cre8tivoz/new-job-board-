@@ -112,6 +112,10 @@ Times are Australia/Melbourne. Hashes are the sanitised post-rewrite hashes.
 | 21 July 2026, 18:33 | `540a466` | `test: verify permissions and core product workflow` |
 | 21 July 2026, 18:46 | `866eef3` | `docs: record build week architecture and demonstration path` |
 | 21 July 2026, 18:48 | `a01c97d` | `ci: update pinned security action runtimes` |
+| 21 July 2026, 18:48 | `ff59782` | `docs: update build week commit ledger` |
+| 21 July 2026, 19:00 | `0fa87c4` | `fix: trust vercel deployment origins` |
+| 21 July 2026, 19:05 | `2f19637` | `fix: deploy Vite frontend and Express API on Vercel` |
+| 21 July 2026, 19:11 | `f0a8f1a` | `fix: cleanly unmount role dashboards` |
 
 The table records material security, product, test, documentation, and CI stages.
 Use `git log --date=local` for the authoritative complete commit ledger.
@@ -148,7 +152,7 @@ npm ci
 Complete the placeholders in `.env` locally. Use the Neon pooled connection
 string for `DATABASE_URL`, create a unique Better Auth secret of at least 32
 characters, and use the `.env.example` local application URLs for development.
-development. Never prefix `DATABASE_URL` or `BETTER_AUTH_SECRET` with `VITE_`.
+Never prefix `DATABASE_URL` or `BETTER_AUTH_SECRET` with `VITE_`.
 
 Apply migrations and load demonstration data:
 
@@ -201,17 +205,23 @@ slugs, lifecycle enforcement, and safe database errors.
 
 ## Vercel and Neon deployment
 
-1. Import the GitHub repository into Vercel.
-2. Add Neon through Vercel Marketplace and make its pooled `DATABASE_URL`
-   available to the project server environment.
-3. Add `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `APP_ORIGIN` as server-side
-   environment variables for Preview and Production.
-4. Apply migrations to the intended database before seeding or serving traffic.
-5. Seed only a dedicated demonstration environment.
-6. Deploy and walk the 90-second demonstration below.
+Production is live at [cre8tivjobs.vercel.app](https://cre8tivjobs.vercel.app)
+under the Vercel project slug `cre8tivjobs`. The project uses a Vercel
+Marketplace Neon database in Sydney. Committed migrations have been applied
+and the dedicated fictional demonstration seed has been loaded.
 
-The repository builds with Vercel's `VERCEL=1` environment and emits browser
-assets to `public/`; Express is exported as the Vercel Function entry point.
+Vercel serves the Vite build from `dist/`. Requests under `/api/*` are routed
+to the single Express function at `api/index.ts`, also deployed in Sydney.
+`DATABASE_URL`, Neon connection values, `BETTER_AUTH_SECRET`, and the replaceable
+demonstration password are encrypted server-side environment variables. Preview
+and Production use separate auth signing secrets; no privileged variable uses a
+browser-public prefix.
+
+The production browser verification covered public chronological jobs,
+candidate sign-in, the persisted Passport, attributable application history,
+employer-owned listings and applicants, the administrator review queue, and
+clean role-dashboard sign-out. No production review decision or new application
+was created during verification, so the seeded demonstration remains repeatable.
 
 ## Strongest 90-second demonstration
 
@@ -232,9 +242,9 @@ assets to `public/`; Express is exported as the Vercel Function entry point.
 - No production payment is collected; the hand-off is explicitly simulated.
 - Email verification, password reset delivery, and transactional email require
   a future provider and are not claimed complete.
-- The repository was not linked to a Vercel project or Neon database in this
-  workspace, so deployed workflow verification remains pending provisioning.
 - Seed credentials are environment-supplied and must remain demonstration-only.
+- The shared Build Week deployment is demonstration infrastructure, not a
+  general-availability service; rotate or remove judge access after judging.
 
 ## Licence
 
