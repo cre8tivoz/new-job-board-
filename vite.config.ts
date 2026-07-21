@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   publicDir: false,
   build: {
-    outDir: process.env.VERCEL ? 'public' : 'dist',
+    outDir: 'dist',
   },
   resolve: {
     alias: {
