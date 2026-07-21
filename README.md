@@ -225,6 +225,10 @@ was created during verification, so the seeded demonstration remains repeatable.
 
 ## Strongest 90-second demonstration
 
+A silent 20-second production capture of employer registration and a listing
+entering manual review is available at
+[`docs/media/cre8tiv-employer-profile-and-listing-20s.mp4`](docs/media/cre8tiv-employer-profile-and-listing-20s.mp4).
+
 1. Browse the two chronologically ordered Australian jobs while signed out.
 2. Sign in as the candidate, open the permanent Passport, and show the public
    slug.
