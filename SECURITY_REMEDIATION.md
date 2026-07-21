@@ -1,5 +1,13 @@
 # Security remediation
 
+> **Build Week status update (21 July 2026):** this report preserves the first
+> security-rescue snapshot. The Firebase, Firestore, Google identity, Gemini,
+> third-party job API, and related environment scaffolding described below were
+> subsequently removed in judged product commit `ae0e1d3`. The current
+> Neon/Drizzle/Better Auth architecture is documented in `README.md` and
+> `docs/ARCHITECTURE_DECISIONS.md`; historical statements below are retained as
+> evidence rather than current setup instructions.
+
 Status: critical fixes verified, affected credentials revoked, and the
 credential-bearing path removed from rewritten Git history.
 

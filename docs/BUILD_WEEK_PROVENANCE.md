@@ -31,6 +31,9 @@ remediation intentionally precedes all product feature work.
 | 21 July 2026, 17:35 | `1336150` | Move privileged API access server-side |
 | 21 July 2026, 17:35 | `0ccf74a` | Add environment and secret safeguards |
 | 21 July 2026, 17:35 | `d2c9cf5` | Add automated scanning and verification |
+| 21 July 2026, 17:55 | `5387f4e` | Preserve Build Week evidence and add Apache-2.0 licensing |
+| 21 July 2026, 18:32 | `ae0e1d3` | Replace Firebase-shaped prototype with the secure judged workflow |
+| 21 July 2026, 18:33 | `540a466` | Verify permissions and the core product workflow |
 
 The original upstream identifiers remain in this record solely as provenance;
 they are not reachable from sanitised `main`.
