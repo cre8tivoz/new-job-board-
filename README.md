@@ -110,6 +110,11 @@ Times are Australia/Melbourne. Hashes are the sanitised post-rewrite hashes.
 | 21 July 2026, 17:55 | `5387f4e` | `docs: preserve Build Week evidence and add Apache-2.0 license` |
 | 21 July 2026, 18:32 | `ae0e1d3` | `feat: replace firebase prototype with secure judged workflow` |
 | 21 July 2026, 18:33 | `540a466` | `test: verify permissions and core product workflow` |
+| 21 July 2026, 18:46 | `866eef3` | `docs: record build week architecture and demonstration path` |
+| 21 July 2026, 18:48 | `a01c97d` | `ci: update pinned security action runtimes` |
+
+The table records material security, product, test, documentation, and CI stages.
+Use `git log --date=local` for the authoritative complete commit ledger.
 
 ## Production architecture
 

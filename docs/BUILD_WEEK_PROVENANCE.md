@@ -34,6 +34,8 @@ remediation intentionally precedes all product feature work.
 | 21 July 2026, 17:55 | `5387f4e` | Preserve Build Week evidence and add Apache-2.0 licensing |
 | 21 July 2026, 18:32 | `ae0e1d3` | Replace Firebase-shaped prototype with the secure judged workflow |
 | 21 July 2026, 18:33 | `540a466` | Verify permissions and the core product workflow |
+| 21 July 2026, 18:46 | `866eef3` | Record judged architecture, setup, limitations, and demonstration path |
+| 21 July 2026, 18:48 | `a01c97d` | Update immutable security Action pins to supported runtimes |
 
 The original upstream identifiers remain in this record solely as provenance;
 they are not reachable from sanitised `main`.
