@@ -4,6 +4,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { Database } from './db/client.js';
 import { schema } from './db/schema.js';
+import { deploymentOrigin, trustedApplicationOrigins } from './origin.js';
 
 export const publicRoles = ['candidate', 'employer'] as const;
 export type PublicRole = typeof publicRoles[number];
@@ -18,14 +19,14 @@ export function createAuth(database: Database) {
     throw new Error('Authentication is not configured.');
   }
 
-  const baseURL = process.env.BETTER_AUTH_URL?.trim() || 'http://localhost:3000';
-  const appOrigin = process.env.APP_ORIGIN?.trim() || baseURL;
+  const localOrigin = 'http://localhost:3000';
+  const baseURL = process.env.BETTER_AUTH_URL?.trim() || deploymentOrigin() || localOrigin;
 
   return betterAuth({
     appName: 'Cre8tiv',
     baseURL,
     secret,
-    trustedOrigins: [appOrigin],
+    trustedOrigins: trustedApplicationOrigins(localOrigin),
     database: drizzleAdapter(database, { provider: 'pg', schema }),
     emailAndPassword: {
       enabled: true,

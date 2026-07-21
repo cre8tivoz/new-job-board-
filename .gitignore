@@ -15,3 +15,4 @@ credentials*.json
 .playwright-cli/
 *.pem
 *.key
+.vercel

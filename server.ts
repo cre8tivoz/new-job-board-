@@ -11,11 +11,11 @@ import { createAuth, type Cre8tivAuth } from './src/server/auth.js';
 import { ConfigurationError, getDatabase, type Database } from './src/server/db/client.js';
 import { AccessDeniedError } from './src/server/policy.js';
 import { createProductRouter, type ProductRuntime } from './src/server/product-router.js';
+import { trustedApplicationOrigins } from './src/server/origin.js';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isVercel = Boolean(process.env.VERCEL);
 const port = parsePort(process.env.PORT);
-const appOrigin = process.env.APP_ORIGIN?.trim();
 
 let runtime: ProductRuntime | undefined;
 
@@ -41,11 +41,12 @@ function requireSameOrigin(req: Request, res: Response, next: NextFunction) {
   const origin = req.get('origin');
   if (!origin) return next();
 
-  const allowedOrigin = appOrigin || (isProduction ? undefined : `http://localhost:${port}`);
-  if (!allowedOrigin) return res.status(503).json({ error: 'Server origin is not configured.' });
+  const allowedOrigins = trustedApplicationOrigins(isProduction ? undefined : `http://localhost:${port}`);
+  if (allowedOrigins.length === 0) return res.status(503).json({ error: 'Server origin is not configured.' });
 
   try {
-    if (new URL(origin).origin !== new URL(allowedOrigin).origin) {
+    const requestOrigin = new URL(origin).origin;
+    if (!allowedOrigins.some((allowedOrigin) => requestOrigin === new URL(allowedOrigin).origin)) {
       return res.status(403).json({ error: 'Cross-origin request denied.' });
     }
   } catch {
